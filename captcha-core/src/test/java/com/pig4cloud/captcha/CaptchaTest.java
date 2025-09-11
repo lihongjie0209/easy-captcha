@@ -1,5 +1,6 @@
 package com.pig4cloud.captcha;
 
+import com.pig4cloud.captcha.model.CharacterBoundingBox;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
@@ -8,6 +9,7 @@ import java.io.FileOutputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.List;
 
 /**
  * 测试类 Created by 王帆 on 2018-07-27 上午 10:08.
@@ -82,6 +84,56 @@ public class CaptchaTest {
 	public void testBase64() throws Exception {
 		GifCaptcha specCaptcha = new GifCaptcha();
 		log.info(specCaptcha.toBase64(""));
+	}
+
+	@Test
+	public void testCharacterBoundingBoxes() throws Exception {
+		SpecCaptcha captcha = new SpecCaptcha(130, 48, 4);
+		List<CharacterBoundingBox> boundingBoxes = captcha.getCharacterBoundingBoxes();
+		
+		log.info("验证码文本: " + captcha.text());
+		log.info("字符边界框信息:");
+		for (CharacterBoundingBox bbox : boundingBoxes) {
+			log.info(bbox.toString());
+		}
+		
+		// 验证返回的边界框数量与验证码长度一致
+		assert boundingBoxes.size() == captcha.getLen();
+		
+		// 验证每个边界框都有有效的坐标和尺寸
+		for (CharacterBoundingBox bbox : boundingBoxes) {
+			assert bbox.getX() >= 0;
+			assert bbox.getY() >= 0;
+			assert bbox.getWidth() > 0;
+			assert bbox.getHeight() > 0;
+			assert bbox.getCharacter() != 0; // 确保字符不为空
+		}
+	}
+
+	@Test
+	public void testOutWithBoundingBoxes() throws Exception {
+		SpecCaptcha captcha = new SpecCaptcha(130, 48, 4);
+		List<CharacterBoundingBox> boundingBoxes = captcha.outWithBoundingBoxes(
+			new FileOutputStream(getPath("bbox-test.png"))
+		);
+		
+		log.info("生成验证码文本: " + captcha.text());
+		log.info("生成的字符边界框信息:");
+		for (CharacterBoundingBox bbox : boundingBoxes) {
+			log.info(bbox.toString());
+		}
+		
+		// 验证返回的边界框数量与验证码长度一致
+		assert boundingBoxes.size() == captcha.getLen();
+		
+		// 验证每个边界框都有有效的坐标和尺寸
+		for (CharacterBoundingBox bbox : boundingBoxes) {
+			assert bbox.getX() >= 0;
+			assert bbox.getY() >= 0;
+			assert bbox.getWidth() > 0;
+			assert bbox.getHeight() > 0;
+			assert bbox.getCharacter() != 0; // 确保字符不为空
+		}
 	}
 
 	private static String getPath(String name) {
