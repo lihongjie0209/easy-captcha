@@ -48,6 +48,10 @@ target/
 *.properties~
 *.xml~
 
+### captcha test files ###
+*.png
+*.gif
+
 ### system ignore ###
 .DS_Store
 Thumbs.db
